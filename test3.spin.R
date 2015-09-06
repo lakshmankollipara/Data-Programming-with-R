@@ -1,0 +1,91 @@
+rm(list = ls())##Clearing Environment
+
+##Fibonacci_Iterative_using Array
+fib_array <- function(n){
+  fibvals <- numeric(n)
+  if(n == 1){
+    fibvals[1] <- 0
+  }else if(n ==2){
+    fibvals[1] <- 0
+    fibvals[2] <- 1
+  }else{
+  fibvals[1] <- 0
+  fibvals[2] <- 1
+  for (i in 3:n) { 
+    fibvals[i] <- fibvals[i-1]+fibvals[i-2]
+  }
+  }
+  return(fibvals)
+}
+
+##Fibonacci_using Recursion
+fib_recursive <- function(n){
+  fibvals <- numeric(n)
+  fib_recursive_cal <- function(n){ 
+    if (n == 1) return(0) 
+    if (n == 2) return(1) 
+    return (fib_recursive_cal(n - 1) + fib_recursive_cal(n - 2)) 
+  }
+  for(i in 1:n)
+  {
+    fibvals[i] <- fib_recursive_cal(i)
+  } 
+  return(fibvals)
+}
+
+##fib_Iterative_without_array
+fib_iterative <-function(n){
+  first <- 0
+  second <- 1
+  fibvals <- numeric(n)
+  for(i in 1:n){
+    if(i == 1){
+      next_e <- 0
+    }
+    else if(i ==2){
+      next_e <- 1
+    }
+    else{
+      next_e <- first + second
+      first <- second
+      second <- next_e
+    }
+    fibvals[i] <- next_e 
+    }
+  return(fibvals)
+}
+
+##Calling function
+#fib_array(10)
+#fib_recursive(10)
+#fib_iterative(10)
+#input_size <- seq(from = 10, to = 30, by = 10)
+#print(input_size)
+#fib_array_n <- lapply(input_size,fib_array)
+#fib_iterative_n <- lapply(input_size,fib_iterative)
+#print(fib_array_n)
+#print(fib_iterative_n)
+
+#fib_recursive_n <- lapply(input_size,fib_recursive)
+#print(fib_recursive_n)
+
+
+size <- seq(from = 10, to = 50, by = 10)
+run_time <- data.frame(Input = numeric(0),Run_Time = numeric(0), Algorithm = character(0), stringsAsFactors = FALSE)
+library(microbenchmark)
+for(i in size){
+  elapsed <- microbenchmark(fib_array(i),fib_iterative(i),fib_recursive(i),unit = "ms", times = 1)
+  #elapsed <- microbenchmark(fib_array(i),fib_iterative(i),unit = "ms", times = 1)
+  elapsed <- unclass(elapsed)
+  elapsed1 <- data.frame(Input_Size = i, Algorithm = elapsed$expr, Run_Time = elapsed$time)
+  run_time[nrow(run_time)+1, ] <- c(log10(i), log10(elapsed$time[1]), elapsed$expr[1])
+  run_time[nrow(run_time)+1, ] <- c(log10(i), log10(elapsed$time[2]), elapsed$expr[2])
+  run_time[nrow(run_time)+1, ] <- c(log10(i), log10(elapsed$time[3]), elapsed$expr[3])
+}
+run_time$Algorithm[run_time$Algorithm == 1] <- "fib_array"
+run_time$Algorithm[run_time$Algorithm == 2] <- "fib_iterative"
+run_time$Algorithm[run_time$Algorithm == 3] <- "fib_recursive"
+print(run_time)
+library(ggplot2)
+p <- ggplot(run_time) + geom_line(aes(x = Input, y = Run_Time, color = Algorithm))
+plot(p)
